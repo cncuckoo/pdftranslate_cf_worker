@@ -55,7 +55,7 @@ export default {
 		}
 
 		try {
-			const prompt = `请将以下英文文本翻译成中文，保持原文的格式和段落结构：\n\n${text}`
+			const prompt = `请将以下英文文本翻译成中文，保持原文的格式和段落结构，只返回译文：\n\n${text}`
 			const response = await fetch(AI_GATEWAY, {
 				method: 'POST',
 				headers: {
