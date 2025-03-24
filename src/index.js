@@ -31,7 +31,7 @@ export default {
 			})
 
 		// 处理请求
-		const {key, text }= await request.json();
+		const {key, text, file_info }= await request.json();
 
 		if (!key) {
 			return new Response(JSON.stringify({ error: 'API key is required' }), { 
@@ -76,7 +76,11 @@ export default {
 						{ "role": "user", "content": prompt },
 					],
 					temperature: 0.2,
-					max_tokens: 4000
+					max_tokens: 4000,
+					metadata: {
+						file_info: file_info || {},
+						key: apiKeyToUse
+					}
 				})
 			});
 			
