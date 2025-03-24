@@ -15,6 +15,7 @@ export default {
 			"Access-Control-Allow-Origin": ALLOWED_ORIGIN,
 			"Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
 			"Access-Control-Allow-Headers": "Content-Type, Authorization",
+			"Content-Type": "application/json"
 		};
 		if (request.method === "OPTIONS") {
 			return new Response(null, {
@@ -24,18 +25,37 @@ export default {
 		}
 
 		if (request.method !== 'POST')
-			return new Response('hello world!', { status: 200 })
+			return new Response(JSON.stringify({ message: 'Hello world!' }), { 
+				status: 200, 
+				headers: corsHeaders 
+			})
 
 		// 处理请求
-		const data = await request.json();
-		if (TURING_USERS.includes(data.key) === false) {
-			return new Response('please input the key.', { status: 200 })
+		const {key, text }= await request.json();
+
+		if (!key) {
+			return new Response(JSON.stringify({ error: 'API key is required' }), { 
+				status: 400, 
+				headers: corsHeaders 
+			});
+		}
+		
+		if (!TURING_USERS.includes(key)) {
+			return new Response(JSON.stringify({ error: 'Unauthorized' }), { 
+				status: 401, 
+				headers: corsHeaders 
+			});
+		}
+		
+		if (!text) {
+			return new Response(JSON.stringify({ error: 'No text provided' }), { 
+				status: 400, 
+				headers: corsHeaders 
+			});
 		}
 
-
-		return new Response(JSON.stringify(data), { status: 200, headers: corsHeaders });
-
 		try {
+			const prompt = `请将以下英文文本翻译成中文，保持原文的格式和段落结构：\n\n${text}`
 			const response = await fetch(AI_GATEWAY, {
 				method: 'POST',
 				headers: {
@@ -45,18 +65,39 @@ export default {
 				body: JSON.stringify({
 					model: 'deepseek-chat',
 					messages: [
-						{ "role": "system", "content": "请" },
-						{ "role": "user", "content": "hi" },
+						{ "role": "user", "content": prompt },
 					],
 					temperature: 0.2,
 					max_tokens: 4000
 				})
 			});
+			
+			if (!response.ok) {
+				const errorText = await response.text();
+				console.error('AI Gateway error:', errorText);
+				return new Response(JSON.stringify({ 
+					error: 'Translation service error', 
+					details: errorText 
+				}), { 
+					status: 502, 
+					headers: corsHeaders 
+				});
+			}
+			
 			const data = await response.json();
-			// const data = TURING_USERS;
-			return new Response(JSON.stringify(data), { status: 200 });
+			return new Response(JSON.stringify(data), { 
+				status: 200, 
+				headers: corsHeaders 
+			});
 		} catch (error) {
-			return new Response('Error occurred', { status: 500 });
+			console.error('Error processing request:', error);
+			return new Response(JSON.stringify({ 
+				error: 'Internal server error', 
+				message: error.message 
+			}), { 
+				status: 500, 
+				headers: corsHeaders 
+			});
 		}
 	},
 };
