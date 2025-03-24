@@ -79,7 +79,7 @@ export default {
 					max_tokens: 4000,
 					metadata: {
 						file_info: file_info || {},
-						key: apiKeyToUse
+						key: key
 					}
 				})
 			});
