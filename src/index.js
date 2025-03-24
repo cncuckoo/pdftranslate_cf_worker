@@ -40,7 +40,11 @@ export default {
 			});
 		}
 		
-		if (!TURING_USERS.includes(key)) {
+		// 判断用户提供的key是否为DeepSeek API Key格式
+		const isDeepSeekAPIKey = key.startsWith('sk-') && key.length > 20;
+		
+		// 如果不是DeepSeek API Key，则验证是否在TURING_USERS列表中
+		if (!isDeepSeekAPIKey && !TURING_USERS.includes(key)) {
 			return new Response(JSON.stringify({ error: 'Unauthorized' }), { 
 				status: 401, 
 				headers: corsHeaders 
@@ -56,11 +60,15 @@ export default {
 
 		try {
 			const prompt = `请将以下英文文本翻译成中文，保持原文的格式和段落结构，只返回译文：\n\n${text}`
+			
+			// 根据判断结果选择使用哪个API Key
+			const apiKeyToUse = isDeepSeekAPIKey ? key : DEEPSEEK_API_KEY;
+			
 			const response = await fetch(AI_GATEWAY, {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
-					'Authorization': `Bearer ${DEEPSEEK_API_KEY}`
+					'Authorization': `Bearer ${apiKeyToUse}`
 				},
 				body: JSON.stringify({
 					model: 'deepseek-chat',
