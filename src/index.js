@@ -10,7 +10,7 @@
 
 export default {
 	async fetch(request, env, ctx) {
-		const { AI_GATEWAY, DEEPSEEK_API_KEY, TURING_USERS, ALLOWED_ORIGIN } = env;
+		const { ARK_API_KEY, DEEPSEEK_ARK_ENDPOINT, DEEPSEEK_ARK_MODEL_ID, TURING_USERS, ALLOWED_ORIGIN } = env;
 		const corsHeaders = {
 			"Access-Control-Allow-Origin": ALLOWED_ORIGIN,
 			"Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
@@ -40,11 +40,8 @@ export default {
 			});
 		}
 
-		// 判断用户提供的key是否为DeepSeek API Key格式
-		const isDeepSeekAPIKey = key.startsWith('sk-') && key.length > 20;
-
-		// 如果不是DeepSeek API Key，则验证是否在TURING_USERS列表中
-		if (!isDeepSeekAPIKey && !TURING_USERS.includes(key)) {
+		// 如果不在TURING_USERS列表中
+		if (!TURING_USERS.includes(key)) {
 			return new Response(JSON.stringify({ error: 'Unauthorized' }), {
 				status: 401,
 				headers: corsHeaders
@@ -62,7 +59,7 @@ export default {
 			const prompt = `请将以下英文文本翻译成中文，保持原文的格式和段落结构。注意：只返回译文，不返回任何其他无关内容：\n\n${text}`
 
 			// 根据判断结果选择使用哪个API Key
-			const apiKeyToUse = isDeepSeekAPIKey ? key : DEEPSEEK_API_KEY;
+			const apiKeyToUse = ARK_API_KEY;
 
 			// 模拟概率性的503错误：本地开发测试用，上线时注释掉！！！
 			// if (Math.random() > 0.6)
@@ -74,17 +71,20 @@ export default {
 			// 		headers: corsHeaders
 			// 	});
 
-
-			const response = await fetch(AI_GATEWAY, {
+			const response = await fetch(DEEPSEEK_ARK_ENDPOINT, {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
 					'Authorization': `Bearer ${apiKeyToUse}`
 				},
 				body: JSON.stringify({
-					model: 'deepseek-chat',
+					model: DEEPSEEK_ARK_MODEL_ID,
 					messages: [
 						{ "role": "user", "content": prompt },
+						{
+							"role": "user",
+							"content": text,
+						}
 					],
 					temperature: 0.2,
 					max_tokens: 4000,

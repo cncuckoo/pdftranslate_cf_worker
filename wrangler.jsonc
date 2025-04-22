@@ -28,8 +28,9 @@
 	"vars": {
 		"ALLOWED_ORIGIN": "*",
 		"DEEPSEEK_ARK_ENDPOINT": "https://ark.cn-beijing.volces.com/api/v3/chat/completions",
+		"DEEPSEEK_ARK_MODEL_ID": "deepseek-v3-250324",
 		"DEEPSEEK_LKEAP_ENDPOINT": "https://api.lkeap.cloud.tencent.com/v1/chat/completions",
-		"DEEPSEEK_MODEL_ID": "deepseek-v3-0324",
+		"DEEPSEEK_LKEAP_MODEL_ID": "deepseek-v3-0324",
 		"AI_GATEWAY": "https://gateway.ai.cloudflare.com/v1/53c5a6c9190e3d3922708f5dbfbafbbb/pdftranslate/deepseek/chat/completions",
 		"TURING_USERS": [
 			"haru",
