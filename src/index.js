@@ -10,7 +10,7 @@
 
 export default {
 	async fetch(request, env, ctx) {
-		const { ARK_API_KEY, DEEPSEEK_ARK_ENDPOINT, DEEPSEEK_ARK_MODEL_ID, TURING_USERS, ALLOWED_ORIGIN } = env;
+		const { ARK_API_KEY, DEEPSEEK_ARK_ENDPOINT, DEEPSEEK_ARK_MODEL_ID, TURING_USERS, ALLOWED_ORIGIN, ERROR } = env;
 		const corsHeaders = {
 			"Access-Control-Allow-Origin": ALLOWED_ORIGIN,
 			"Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
@@ -34,7 +34,7 @@ export default {
 		const { key, text, file_info } = await request.json();
 
 		if (!key) {
-			return new Response(JSON.stringify({ error: 'API key is required' }), {
+			return new Response(JSON.stringify(ERROR.NO_KEY), {
 				status: 400,
 				headers: corsHeaders
 			});
@@ -42,14 +42,14 @@ export default {
 
 		// 如果不在TURING_USERS列表中
 		if (!TURING_USERS.includes(key)) {
-			return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+			return new Response(JSON.stringify(ERROR.UNKOWN_KEY), {
 				status: 401,
 				headers: corsHeaders
 			});
 		}
 
 		if (!text) {
-			return new Response(JSON.stringify({ error: 'No text provided' }), {
+			return new Response(JSON.stringify(ERROR.NO_TEXT), {
 				status: 400,
 				headers: corsHeaders
 			});

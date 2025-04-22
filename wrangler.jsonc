@@ -72,7 +72,21 @@
 			"zhanghaiyan",
 			"dingqingxia",
 			"songruimin"
-		]
+		],
+		"ERROR": {
+			"UNKOWN_KEY": {
+				"code": 9001,
+				"message": "Unknown key"
+			},
+			"NO_KEY": {
+				"code": 9002,
+				"message": "No key provided"
+			},
+			"NO_TEXT": {
+				"code": 9003,
+				"message": "No text provided"
+			}
+		}
 	},
 	/**
 	 * Note: Use secrets to store sensitive data.
