@@ -31,7 +31,7 @@ export default {
 			})
 
 		// 处理请求
-		const { key, text, file_info } = await request.json();
+		const { key, text, prompt, file_info } = await request.json();
 
 		if (!key) {
 			return new Response(JSON.stringify(ERROR.NO_KEY), {
@@ -56,7 +56,7 @@ export default {
 		}
 
 		try {
-			const prompt = `请将以下英文文本翻译成中文，保持原文的格式和段落结构。注意：只返回译文，不返回任何其他无关内容：\n\n${text}`
+			const system_prompt = prompt.trim() ? prompt.trim() : `请将以下英文文本翻译成中文，保留Markdown格式。注意：只返回译文，不返回任何其他无关内容。`
 
 			// 根据判断结果选择使用哪个API Key
 			const apiKeyToUse = ARK_API_KEY;
@@ -71,6 +71,8 @@ export default {
 			// 		headers: corsHeaders
 			// 	});
 
+			console.log('system_prompt', system_prompt)
+
 			const response = await fetch(DEEPSEEK_ARK_ENDPOINT, {
 				method: 'POST',
 				headers: {
@@ -80,7 +82,7 @@ export default {
 				body: JSON.stringify({
 					model: DEEPSEEK_ARK_MODEL_ID,
 					messages: [
-						{ "role": "user", "content": prompt },
+						{ "role": "system", "content": system_prompt },
 						{
 							"role": "user",
 							"content": text,
@@ -90,7 +92,8 @@ export default {
 					max_tokens: 4000,
 					metadata: {
 						file_info: file_info || {},
-						key: key
+						key: key,
+						system_prompt: system_prompt
 					}
 				})
 			});
