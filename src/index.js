@@ -25,45 +25,56 @@ export default {
 		}
 
 		if (request.method !== 'POST')
-			return new Response(JSON.stringify({ message: 'Hello world!' }), { 
-				status: 200, 
-				headers: corsHeaders 
+			return new Response(JSON.stringify({ message: 'Hello world!' }), {
+				status: 200,
+				headers: corsHeaders
 			})
 
 		// 处理请求
-		const {key, text, file_info }= await request.json();
+		const { key, text, file_info } = await request.json();
 
 		if (!key) {
-			return new Response(JSON.stringify({ error: 'API key is required' }), { 
-				status: 400, 
-				headers: corsHeaders 
+			return new Response(JSON.stringify({ error: 'API key is required' }), {
+				status: 400,
+				headers: corsHeaders
 			});
 		}
-		
+
 		// 判断用户提供的key是否为DeepSeek API Key格式
 		const isDeepSeekAPIKey = key.startsWith('sk-') && key.length > 20;
-		
+
 		// 如果不是DeepSeek API Key，则验证是否在TURING_USERS列表中
 		if (!isDeepSeekAPIKey && !TURING_USERS.includes(key)) {
-			return new Response(JSON.stringify({ error: 'Unauthorized' }), { 
-				status: 401, 
-				headers: corsHeaders 
+			return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+				status: 401,
+				headers: corsHeaders
 			});
 		}
-		
+
 		if (!text) {
-			return new Response(JSON.stringify({ error: 'No text provided' }), { 
-				status: 400, 
-				headers: corsHeaders 
+			return new Response(JSON.stringify({ error: 'No text provided' }), {
+				status: 400,
+				headers: corsHeaders
 			});
 		}
 
 		try {
-			const prompt = `请将以下英文文本翻译成中文，保持原文的格式和段落结构，只返回译文：\n\n${text}`
-			
+			const prompt = `请将以下英文文本翻译成中文，保持原文的格式和段落结构。注意：只返回译文，不返回任何其他无关内容：\n\n${text}`
+
 			// 根据判断结果选择使用哪个API Key
 			const apiKeyToUse = isDeepSeekAPIKey ? key : DEEPSEEK_API_KEY;
-			
+
+			// 模拟概率性的503错误：本地开发测试用，上线时注释掉！！！
+			// if (Math.random() > 0.6)
+			// 	return new Response(JSON.stringify({
+			// 		error: 'Translation service error',
+			// 		message: 'Translation service is temporarily unavailable'
+			// 	}), {
+			// 		status: 503,
+			// 		headers: corsHeaders
+			// 	});
+
+
 			const response = await fetch(AI_GATEWAY, {
 				method: 'POST',
 				headers: {
@@ -83,32 +94,33 @@ export default {
 					}
 				})
 			});
-			
+
+
 			if (!response.ok) {
 				const errorText = await response.text();
 				console.error('AI Gateway error:', errorText);
-				return new Response(JSON.stringify({ 
-					error: 'Translation service error', 
-					details: errorText 
-				}), { 
-					status: 502, 
-					headers: corsHeaders 
+				return new Response(JSON.stringify({
+					error: 'Translation service error',
+					details: errorText
+				}), {
+					status: 502,
+					headers: corsHeaders
 				});
 			}
-			
+
 			const data = await response.json();
-			return new Response(JSON.stringify(data), { 
-				status: 200, 
-				headers: corsHeaders 
+			return new Response(JSON.stringify(data), {
+				status: 200,
+				headers: corsHeaders
 			});
 		} catch (error) {
 			console.error('Error processing request:', error);
-			return new Response(JSON.stringify({ 
-				error: 'Internal server error', 
-				message: error.message 
-			}), { 
-				status: 500, 
-				headers: corsHeaders 
+			return new Response(JSON.stringify({
+				error: 'Internal server error',
+				message: error.message
+			}), {
+				status: 500,
+				headers: corsHeaders
 			});
 		}
 	},
