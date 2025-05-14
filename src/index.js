@@ -10,7 +10,7 @@
 
 export default {
 	async fetch(request, env, ctx) {
-		const { ARK_API_KEY, DEEPSEEK_ARK_ENDPOINT, DEEPSEEK_ARK_MODEL_ID, TURING_USERS, ALLOWED_ORIGIN, ERROR } = env;
+		const { ARK_API_KEY, PREORITY, OPENAI_API_KEY, OPENAI_PROXY_ENDPOINT, OPENAI_MODEL_ID, DEEPSEEK_ARK_ENDPOINT, DEEPSEEK_ARK_MODEL_ID, TURING_USERS, ALLOWED_ORIGIN, ERROR } = env;
 		const corsHeaders = {
 			"Access-Control-Allow-Origin": ALLOWED_ORIGIN,
 			"Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
@@ -56,10 +56,13 @@ export default {
 		}
 
 		try {
-			const system_prompt = prompt.trim() ? prompt.trim() : `请将以下英文文本翻译成中文，保留Markdown格式。注意：只返回译文，不返回任何其他无关内容。`
+			const system_prompt = prompt?.trim() ? prompt?.trim() : `请将以下英文文本翻译成中文，保留Markdown格式。注意：只返回译文，不返回任何其他无关内容。`
 
+			const isPriority = PREORITY.includes(key);
 			// 根据判断结果选择使用哪个API Key
-			const apiKeyToUse = ARK_API_KEY;
+			const apiKeyToUse = isPriority ? OPENAI_API_KEY : ARK_API_KEY;
+			const endpointToUse = isPriority ? OPENAI_PROXY_ENDPOINT : DEEPSEEK_ARK_ENDPOINT;
+			const modelToUse = isPriority ? OPENAI_MODEL_ID : DEEPSEEK_ARK_MODEL_ID;
 
 			// 模拟概率性的503错误：本地开发测试用，上线时注释掉！！！
 			// if (Math.random() > 0.6)
@@ -71,16 +74,18 @@ export default {
 			// 		headers: corsHeaders
 			// 	});
 
-			console.log('system_prompt', system_prompt)
+			// console.log('system_prompt', system_prompt)
+			// console.log('endpointToUse', endpointToUse)
+			// console.log('modelToUse', modelToUse)
 
-			const response = await fetch(DEEPSEEK_ARK_ENDPOINT, {
+			const response = await fetch(endpointToUse, {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
 					'Authorization': `Bearer ${apiKeyToUse}`
 				},
 				body: JSON.stringify({
-					model: DEEPSEEK_ARK_MODEL_ID,
+					model: modelToUse,
 					messages: [
 						{ "role": "system", "content": system_prompt },
 						{
@@ -91,7 +96,7 @@ export default {
 					temperature: 0.2,
 					max_tokens: 4000,
 					metadata: {
-						file_info: file_info || {},
+						file_info: JSON.stringify(file_info || {}),
 						key: key,
 						system_prompt: system_prompt
 					}
@@ -112,6 +117,7 @@ export default {
 			}
 
 			const data = await response.json();
+			// console.log('data', data)
 			return new Response(JSON.stringify(data), {
 				status: 200,
 				headers: corsHeaders
