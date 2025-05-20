@@ -55,8 +55,15 @@ export default {
 			});
 		}
 
+		const default_prompt = `你是一位译著等身的绝世翻译高手，学冠中西、博通古今，尤其擅长技术、科普内容的翻译，译文准确、流畅，尤其在底层长上下文连贯性和术语统一性方面，你总能做到贴合语境、严谨细致，令人不禁拍案叫绝。
+1.翻译风格：你的译文不会照搬原文句式，不会逐字逐句地翻译，多数情况下会重新组织语言，做到特别简洁易懂，且文白相间、地道深刻。
+2.术语统一：你的译文会尽量使用中文术语，不会使用英文术语。人名、地名、机构名、软件名称、编程语言、技术名词等，你都会使用中文术语。
+3.输出格式：你的译文会保留原文的LaTex公式、Markdown标记、HTML标签，也不会添加原文中没有的Markdown标签。
+请将用户提交的Markdown格式的英文翻译成中文，只输出译文，不输出任何无关内容。
+`;
+
 		try {
-			const system_prompt = prompt?.trim() ? prompt?.trim() : `请将以下英文文本翻译成中文，保留Markdown格式。注意：只返回译文，不返回任何其他无关内容。`
+			const system_prompt = prompt?.trim() ? prompt?.trim() : default_prompt;
 
 			const isPriority = PREORITY.includes(key);
 			// 根据判断结果选择使用哪个API Key
@@ -82,7 +89,7 @@ export default {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
-					'Authorization': `Bearer ${apiKeyToUse}`
+					'Authorization': `Bearer ${apiKeyToUse} `
 				},
 				body: JSON.stringify({
 					model: modelToUse,
