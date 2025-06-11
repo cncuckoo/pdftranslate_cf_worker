@@ -34,6 +34,15 @@
 		"DEEPSEEK_LKEAP_ENDPOINT": "https://api.lkeap.cloud.tencent.com/v1/chat/completions",
 		"DEEPSEEK_LKEAP_MODEL_ID": "deepseek-v3-0324",
 		"AI_GATEWAY": "https://gateway.ai.cloudflare.com/v1/53c5a6c9190e3d3922708f5dbfbafbbb/pdftranslate/deepseek/chat/completions",
+		"SOURCE_LANGUAGES": {
+			"en": "英语",
+			"ja": "日语",
+			"ko": "韩语",
+			"fr": "法语",
+			"de": "德语",
+			"ru": "俄语",
+			"es": "西班牙语"
+		},
 		"TURING_USERS": [
 			"haru",
 			"natu",
@@ -84,6 +93,7 @@
 			"wuruixin",
 			"fuyu",
 			"zengbin",
+			"zhanghaiyan",
 		],
 		"ERROR": {
 			"UNKOWN_KEY": {
