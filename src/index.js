@@ -10,7 +10,7 @@
 
 export default {
 	async fetch(request, env, ctx) {
-		const { ARK_API_KEY, PREORITY, OPENAI_API_KEY, OPENAI_PROXY_ENDPOINT, OPENAI_MODEL_ID, DEEPSEEK_ARK_ENDPOINT, DEEPSEEK_ARK_MODEL_ID, TURING_USERS, ALLOWED_ORIGIN, ERROR, SOURCE_LANGUAGES } = env;
+		const { ARK_API_KEY, PREORITY, OPENAI_API_KEY, OPENAI_PROXY_ENDPOINT, OPENAI_MODEL_ID, DEEPSEEK_ARK_ENDPOINT, DEEPSEEK_ARK_MODEL_ID, TURING_USERS, ALLOWED_ORIGIN, ERROR, LANGUAGES } = env;
 		const corsHeaders = {
 			"Access-Control-Allow-Origin": ALLOWED_ORIGIN,
 			"Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
@@ -31,8 +31,9 @@ export default {
 			})
 
 		// 处理请求
-		const { key, text, prompt, file_info, source_language } = await request.json();
-		const language = SOURCE_LANGUAGES[source_language]
+		const { key, text, prompt, file_info, source_language, target_language } = await request.json();
+		const source_language_name = LANGUAGES[source_language]
+		const target_language_name = LANGUAGES[target_language]
 
 		if (!key) {
 			return new Response(JSON.stringify(ERROR.NO_KEY), {
@@ -56,12 +57,21 @@ export default {
 			});
 		}
 
-		const default_prompt = `你是一位译著等身的绝世翻译高手，学冠中西、博通古今，尤其擅长技术、科普内容的翻译，译文准确、流畅，尤其在底层长上下文连贯性和术语统一性方面，你总能做到贴合语境、严谨细致，令人不禁拍案叫绝。
+		const target_cn_prompt = `你是一位译著等身的绝世翻译高手，学冠中西、博通古今，尤其擅长技术、科普内容的翻译，译文准确、流畅，尤其在底层长上下文连贯性和术语统一性方面，你总能做到贴合语境、严谨细致，令人不禁拍案叫绝。
 1.翻译风格：译文不照搬原文句式，不逐字逐句翻译，多数情况下都会重新组织语言，做到特别简洁易懂，且文白相间、通俗易懂。
 2.术语统一：人名、地名、机构名、软件名称、编程语言、技术名词等尽量使用中文术语，如果英文简写形式更通用，则使用英文简写形式，如：AI、Web、HTML、HTTP。
 3.输出格式：译文必须保留原文本中的LaTex公式、Markdown标记、HTML标签，不额外添加任何标签和标记。
-将用户提交的Markdown格式的${language}翻译成中文，只输出译文，不输出任何无关内容。
+将用户提交的Markdown格式的${source_language_name}翻译成中文，只输出译文，不输出任何无关内容。
 `;
+		// 如果目标语言不是中文，使用简化版提示词
+		const default_prompt = target_language_name === LANGUAGES['zh'] ? target_cn_prompt : `将用户提交的Markdown格式的${source_language_name}翻译成${target_language_name}，只输出译文，不输出任何无关内容。`;
+
+		// 本地开发测试用，上线前注释掉
+		// return new Response(JSON.stringify(default_prompt), {
+		// 	status: 200,
+		// 	headers: corsHeaders
+		// });
+
 
 		try {
 			const system_prompt = prompt?.trim() ? prompt?.trim() : default_prompt;
