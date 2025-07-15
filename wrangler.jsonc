@@ -28,7 +28,7 @@
 	"vars": {
 		"ALLOWED_ORIGIN": "*",
 		"OPENAI_PROXY_ENDPOINT": "https://api.openai-proxy.com/v1/chat/completions",
-		"OPENAI_MODEL_ID": "gpt-4.5-preview",
+		"OPENAI_MODEL_ID": "gpt-4.1",
 		"DEEPSEEK_ARK_ENDPOINT": "https://ark.cn-beijing.volces.com/api/v3/chat/completions",
 		"DEEPSEEK_ARK_MODEL_ID": "deepseek-v3-250324",
 		"DEEPSEEK_LKEAP_ENDPOINT": "https://api.lkeap.cloud.tencent.com/v1/chat/completions",
