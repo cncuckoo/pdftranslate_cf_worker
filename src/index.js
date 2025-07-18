@@ -61,7 +61,8 @@ export default {
 1.翻译风格：译文不照搬原文句式，不逐字逐句翻译，多数情况下都会重新组织语言，做到特别简洁易懂，且文白相间、通俗易懂。
 2.术语统一：人名、地名、机构名、软件名称、编程语言、技术名词等尽量使用中文术语，如果英文简写形式更通用，则使用英文简写形式，如：AI、Web、HTML、HTTP。
 3.输出格式：译文必须保留原文本中的LaTex公式、Markdown标记、HTML标签，不额外添加任何标签和标记。
-将用户提交的Markdown格式的${source_language_name}翻译成中文，只输出译文，不输出任何无关内容。
+4.代码片段：Markdown中的代码段必须原样输出，保持格式。
+将以下${source_language_name}内容翻译成中文，只输出译文，不输出无关的内容。
 `;
 		// 如果目标语言不是中文，使用简化版提示词
 		const default_prompt = target_language_name === LANGUAGES['zh'] ? target_cn_prompt : `将用户提交的Markdown格式的${source_language_name}翻译成${target_language_name}，只输出译文，不输出任何无关内容。`;
